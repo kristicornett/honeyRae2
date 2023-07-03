@@ -5,6 +5,7 @@ import './Tickets.css'
 export const TicketList = () => {
     const [tickets, setTickets] = useState([])
     const [filteredTickets, setFilteredTickets] = useState([])
+    const [emergency, setEmergency] = useState(false)
 
     const localStorageUser = localStorage.getItem('honey_user')
     const honeyUserObject = JSON.parse(localStorageUser)
@@ -33,8 +34,35 @@ export const TicketList = () => {
         }, [tickets]
     )
 
+    useEffect(() => {
+        if (emergency) {
+           const emergencyTickets = tickets.filter((ticket) => ticket.emergency == true)
+            setFilteredTickets(emergencyTickets)
+        } else {
+            setFilteredTickets(tickets)
+        }
+        //re-render when there is an emergency clicked? triggering the use effect?
+    }, [emergency])
+
+    const toggleButton = () => {
+        setEmergency(true)
+    }
+
+    const showAllButton = () => {
+        setEmergency(false)
+    }
+
 
     return <>
+    {
+        
+        honeyUserObject.staff ?
+        <> 
+        <button onClick={toggleButton}>Emergency Tickets</button>
+        <button onClick={showAllButton}>All Tickets</button>
+        </> : ""
+        
+    }
 
     <h2>List of Tickets</h2>
     <div className="tickets">
