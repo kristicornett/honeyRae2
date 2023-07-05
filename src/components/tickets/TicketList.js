@@ -1,14 +1,17 @@
 import { useEffect, useState } from 'react'
 import './Tickets.css'
+import { useNavigate } from 'react-router-dom'
 
 
 export const TicketList = () => {
     const [tickets, setTickets] = useState([])
     const [filteredTickets, setFilteredTickets] = useState([])
     const [emergency, setEmergency] = useState(false)
+    const [openOnly, setOpenOnly] = useState(false)
 
     const localStorageUser = localStorage.getItem('honey_user')
     const honeyUserObject = JSON.parse(localStorageUser)
+    const navigate = useNavigate()
 
     useEffect(
         () => {
@@ -34,6 +37,20 @@ export const TicketList = () => {
         }, [tickets]
     )
 
+    useEffect( 
+        () => {
+            if (openOnly) {
+            const openTicketArray = tickets.filter(ticket => {
+                return ticket.userId === honeyUserObject.id && ticket.dateCompleted === ''
+            })
+            setFilteredTickets(openTicketArray)
+        } else {
+            const myTickets = tickets.filter(ticket => ticket.userId === honeyUserObject.id)
+            setFilteredTickets(myTickets)
+        }   
+        }, [openOnly]
+    )
+
     useEffect(() => {
         if (emergency) {
            const emergencyTickets = tickets.filter((ticket) => ticket.emergency == true)
@@ -52,7 +69,13 @@ export const TicketList = () => {
         setEmergency(false)
     }
 
+    const showOpenTickets = () => {
+        setOpenOnly(true)
+    }
 
+    const showAllMyTickets = () => {
+        setOpenOnly(false)
+    }
     return <>
     {
         
@@ -60,10 +83,15 @@ export const TicketList = () => {
         <> 
         <button onClick={toggleButton}>Emergency Tickets</button>
         <button onClick={showAllButton}>All Tickets</button>
-        </> : ""
+        </> : <>
+        <button onClick={() =>  navigate('/tickets/create')}>Create Ticket</button>
+        <button onClick={showOpenTickets}>Show Open Tickets</button>
+        <button onClick={showAllMyTickets}>Show All My Tickets</button>
+        </>
+
         
     }
-
+    
     <h2>List of Tickets</h2>
     <div className="tickets">
         {
